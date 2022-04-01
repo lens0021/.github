@@ -1,0 +1,30 @@
+name: Test the test
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: test
+        run: |
+          echo '13: ${{ github.ref_name }}'
+          echo "14: ${{ github.ref_name }}"
+          echo "${{ github.ref_name }}" | rev | cut -d'-' -f1 | rev
+          echo 'CREATE_PR_BASE='$(echo "${{ github.ref_name }}" | rev | cut -d'-' -f1 | rev) >> $GITHUB_ENV
+          echo "$CREATE_PR_BASE"
+          
+  create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create Pull Request
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          destination_branch: main
+          pr_title: Update ".github/workflows/test.yml"
